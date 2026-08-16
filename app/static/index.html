@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LLM Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 60px auto; padding: 0 20px; }
+    textarea { width: 100%; height: 80px; font-size: 16px; padding: 8px; box-sizing: border-box; }
+    button { margin-top: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #result { margin-top: 24px; padding: 16px; background: #f5f5f5; border-radius: 8px; display: none; }
+    #error { margin-top: 24px; padding: 16px; background: #ffe5e5; border-radius: 8px; display: none; color: #900; }
+    .field { margin-bottom: 8px; }
+    .label { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Ask the LLM</h1>
+  <textarea id="question" placeholder="Type your question..."></textarea>
+  <br>
+  <button id="askBtn">Ask</button>
+
+  <div id="result">
+    <div class="field"><span class="label">Answer:</span> <span id="answer"></span></div>
+    <div class="field"><span class="label">Topic:</span> <span id="topic"></span></div>
+    <div class="field"><span class="label">Confidence:</span> <span id="confidence"></span></div>
+    <div class="field"><span class="label">Tokens used:</span> <span id="tokens"></span></div>
+  </div>
+
+  <div id="error"></div>
+
+  <script>
+    const askBtn = document.getElementById("askBtn");
+    const questionEl = document.getElementById("question");
+    const resultEl = document.getElementById("result");
+    const errorEl = document.getElementById("error");
+
+    askBtn.addEventListener("click", async () => {
+      const question = questionEl.value.trim();
+      if (!question) return;
+
+      resultEl.style.display = "none";
+      errorEl.style.display = "none";
+      askBtn.disabled = true;
+      askBtn.textContent = "Thinking...";
+
+      try {
+        const response = await fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || "Something went wrong");
+        }
+
+        document.getElementById("answer").textContent = data.answer;
+        document.getElementById("topic").textContent = data.topic;
+        document.getElementById("confidence").textContent = data.confidence;
+        document.getElementById("tokens").textContent = data.tokens_used;
+        resultEl.style.display = "block";
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = "block";
+      } finally {
+        askBtn.disabled = false;
+        askBtn.textContent = "Ask";
+      }
+    });
+  </script>
+</body>
+</html>
