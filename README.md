@@ -34,7 +34,7 @@ app/
 **Requirements:** Python 3.10+, [uv](https://docs.astral.sh/uv/), an OpenAI API key.
 
 \`\`\`bash
-git clone https://github.com/YOUR_USERNAME/llm-demo.git
+git clone https://github.com/junglikaushal/llm-demo.git
 cd llm-demo
 uv sync
 \`\`\`
