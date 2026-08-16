@@ -1,0 +1,12 @@
+[project]
+name = "llm-demo"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.141.1",
+    "openai>=3.1.0",
+    "pydantic-settings>=2.15.0",
+    "uvicorn>=0.52.3",
+]
