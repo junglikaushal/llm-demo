@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.schemas import AskRequest, AskResponse
+from app.services.llm_service import LLMProviderError, LLMTimeoutError, ask_llm
 
 router = APIRouter()
 
@@ -11,13 +12,10 @@ def health_check():
 
 
 @router.post("/ask")
-def ask(request: AskRequest) -> AskResponse:
-    """
-    Ask a question (test endpoint — not wired to LLM yet).
-    """
-    return AskResponse(
-        answer="This is a placeholder answer.",
-        confidence=0.5,
-        topic="placeholder",
-        token_used=0,
-    )
+async def ask(request: AskRequest) -> AskResponse:
+    try:
+        return await ask_llm(request.question)
+    except LLMTimeoutError as exc:
+        raise HTTPException(status_code=504, detail=str(exc)) from exc
+    except LLMProviderError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
